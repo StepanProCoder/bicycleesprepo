@@ -1,73 +1,46 @@
 package com.staple.probkaesp;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import java.io.IOException;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import com.staple.probkaesp.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
-    private TextView statusTextView;
-    private Esp8266Api esp8266Api;
+
+    private MainViewModel mainViewModel;
+    private ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        NsdDiscovery nsdDiscovery = new NsdDiscovery(this);
-        nsdDiscovery.startDiscovery();
+        // Set up Data Binding
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        statusTextView = findViewById(R.id.statusTextView);
+        // Initialize ViewModel using ViewModelProvider
+        mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
-        // Обработка нажатия кнопки
-        Button statusButton = findViewById(R.id.statusButton);
-        statusButton.setOnClickListener(new View.OnClickListener() {
+        // Observe changes in LiveData and update UI
+        mainViewModel.getStatusTextLiveData().observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String statusText) {
+                binding.statusTextView.setText(statusText);
+            }
+        });
+
+        // Set Click Listener for the statusButton using Data Binding
+        binding.statusButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                esp8266Api = nsdDiscovery.esp8266Api;
-                getSwitchStatus();
+                mainViewModel.onStatusButtonClick();
             }
         });
-    }
 
-    private void getSwitchStatus() {
-        Call<SwitchStatus> call = esp8266Api.getSwitchStatus();
-        call.enqueue(new Callback<SwitchStatus>() {
-            @Override
-            public void onResponse(Call<SwitchStatus> call, Response<SwitchStatus> response) {
-                if (response.isSuccessful()) {
-                    SwitchStatus switchStatus = response.body();
-                    Log.d("SUCC", response.message());
-                    float speed = response.body().getSpeed();
-                    // Обработка полученного статуса геркона
-                    statusTextView.setText(speed + " km/h");
-
-                } else {
-                    Toast.makeText(MainActivity.this, "Ошибка при получении статуса", Toast.LENGTH_SHORT).show();
-                    try {
-                        Log.d("FAIL", response.errorBody().string());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<SwitchStatus> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "Ошибка при отправке запроса", Toast.LENGTH_SHORT).show();
-            }
-        });
+        mainViewModel.onInit(this);
     }
 }
