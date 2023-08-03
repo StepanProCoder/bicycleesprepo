@@ -48,7 +48,7 @@ public class MainViewModel extends ViewModel {
 
     // Method for executing the API request to fetch switch status
     private void fetchSwitchStatus() {
-        esp8266Api.getSwitchStatus().enqueue(new ResponseHandler(statusTextLiveData));
+        esp8266Api.getSensorData().enqueue(new ResponseHandler(statusTextLiveData));
     }
 
     // Method to get the LiveData with the text status
