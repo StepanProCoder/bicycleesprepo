@@ -19,6 +19,15 @@
         android:theme="@style/Theme.ProbkaESP"
         tools:targetApi="31">
         <activity
+            android:name=".SensorSelectionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".RadiusSelectionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".LottieActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

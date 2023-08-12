@@ -1,5 +1,6 @@
 package com.staple.probkaesp;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -28,9 +29,15 @@ public class MainViewModel extends ViewModel {
         esp8266Api = retrofit.create(Esp8266Api.class);
     }
 
-    public void onInit(Context context) {
-        nsdDiscovery = new NsdDiscovery(context, this);
-        nsdDiscovery.startDiscovery();
+    public void onInit(MainActivity activity) {
+
+        Intent intent = new Intent(activity, LottieActivity.class); // Замените OtherActivity на нужную активити
+        activity.startActivity(intent);
+
+        activity.finish(); // Закрываем текущую активити, если это необходимо
+
+        //nsdDiscovery = new NsdDiscovery(activity, this);
+        //nsdDiscovery.startDiscovery();
     }
 
     // Method to handle button click
