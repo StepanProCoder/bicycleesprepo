@@ -14,7 +14,7 @@ public class SensorDataFactory {
     private static final Map<String, Class<?>> typeMappings = new HashMap<>();
 
     static {
-        typeMappings.put("speedo", Float.class);
+        typeMappings.put("Gerkon", Float.class);
         // Добавьте другие типы датчиков, если необходимо
     }
 

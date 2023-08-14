@@ -32,40 +32,24 @@ public class SensorSelectionActivity extends AppCompatActivity {
 
         // Initialize ViewModel using ViewModelProvider
         sensorSelectionViewModel = new ViewModelProvider(this).get(SensorSelectionViewModel.class);
-        binding.submitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Получаем данные о выбранных датчиках
-                boolean hasSpeedometer = binding.speedometerCheckbox.isChecked();
-                boolean hasPressureMeter = binding.pressureMeterCheckbox.isChecked();
-                boolean hasHeartRateMonitor = binding.heartRateMonitorCheckbox.isChecked();
 
-                // Получаем данные из полей ввода
-                String speedometerText = binding.speedometerEditText.getText().toString();
-                String pressureMeterText = binding.pressureMeterEditText.getText().toString();
-                String heartRateMonitorText = binding.heartRateMonitorEditText.getText().toString();
+        setupSubmitButton();
+    }
 
-                // Создаем объект BikeData с данными о выбранных датчиках
-                BikeData bikeData = new BikeData();
-                bikeData.setSpeedometer(hasSpeedometer, speedometerText);
-                bikeData.setPressureMeter(hasPressureMeter, pressureMeterText);
-                bikeData.setHeartRateMonitor(hasHeartRateMonitor, heartRateMonitorText);
+    private void setupSubmitButton() {
+        binding.submitButton.setOnClickListener(view -> {
+            sensorSelectionViewModel.saveBikeDataToJson(
+                    new File(getCacheDir(), getString(R.string.json_path)),
+                    binding.speedometerCheckbox.isChecked(),
+                    binding.speedometerEditText.getText().toString(),
+                    binding.pressureMeterCheckbox.isChecked(),
+                    binding.pressureMeterEditText.getText().toString(),
+                    binding.heartRateMonitorCheckbox.isChecked(),
+                    binding.heartRateMonitorEditText.getText().toString(),
+                    getIntent().getIntExtra("selectedRadius", 20)
+            );
 
-                // Получаем переданный из предыдущей активности выбранный радиус колеса
-                Intent intent = getIntent();
-                int selectedRadius = intent.getIntExtra("selectedRadius", 20); // Значение по умолчанию, если данные не были переданы
-
-                bikeData.setWheelRadius(selectedRadius);
-
-                // Преобразуем BikeData в JSON строку с помощью Gson
-                Gson gson = new Gson();
-                String jsonData = gson.toJson(bikeData);
-
-                // Сохраняем JSON строку в файл
-                sensorSelectionViewModel.saveJsonToCache(getString(R.string.json_path), jsonData, SensorSelectionActivity.this);
-
-                sensorSelectionViewModel.navigateToNextScreen(SensorSelectionActivity.this);
-            }
+            sensorSelectionViewModel.navigateToNextScreen(this);
         });
     }
 

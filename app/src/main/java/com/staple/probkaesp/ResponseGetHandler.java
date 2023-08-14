@@ -12,11 +12,11 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ResponseHandler implements Callback<ResponseBody> {
+public class ResponseGetHandler implements Callback<ResponseBody> {
 
     MutableLiveData<String> statusTextLiveData;
 
-    public ResponseHandler(MutableLiveData<String> statusTextLiveData) {
+    public ResponseGetHandler(MutableLiveData<String> statusTextLiveData) {
         this.statusTextLiveData = statusTextLiveData;
     }
 
