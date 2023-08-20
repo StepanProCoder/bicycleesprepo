@@ -35,7 +35,7 @@ public class ResponseGetHandler implements Callback<ResponseBody> {
             Log.d("JSON", jsonString);
             List<SensorData<?>> sensorDataList = SensorDataFactory.parseSensorDataListFromJson(jsonString);
             String result = convertSensorDataListToString(sensorDataList);
-            statusTextLiveData.setValue(result);
+            statusTextLiveData.postValue(result);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

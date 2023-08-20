@@ -34,10 +34,17 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Set Click Listener for the statusButton using Data Binding
-        binding.statusButton.setOnClickListener(new View.OnClickListener() {
+        binding.configButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainViewModel.onStatusButtonClick();
+                mainViewModel.onConfigButtonClick(MainActivity.this);
+            }
+        });
+
+        binding.refreshButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mainViewModel.onRefreshButtonClick();
             }
         });
 
