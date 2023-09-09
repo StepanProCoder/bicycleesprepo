@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ProbkaESP</string>
+    <string name="json_path">bike_data.json</string>
 </resources>
