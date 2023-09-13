@@ -59,7 +59,7 @@ public class MainViewModel extends ViewModel {
             nsdDiscovery.startDiscovery();
         }
         else {
-            ActivityUtils.startNewActivityAndFinishCurrent(activity, LottieActivity.class);
+            ActivityUtils.startNewActivityAndFinishCurrent(activity, HandshakeActivity.class);
             timer.cancel();
         }
 
