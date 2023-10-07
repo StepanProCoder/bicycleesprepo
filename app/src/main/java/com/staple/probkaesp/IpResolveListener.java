@@ -23,7 +23,8 @@ public class IpResolveListener implements NsdManager.ResolveListener{
         // Получение IP-адреса сервиса
         InetAddress address = serviceInfo.getHost();
         String ipAddress = address.getHostAddress();
-        nsdDiscovery.handleIpAddress(ipAddress);
+        String hostName = serviceInfo.getServiceName();
+        nsdDiscovery.handleIpAddress(hostName, ipAddress);
         // Используйте полученный IP-адрес для связи с ESP8266
     }
 

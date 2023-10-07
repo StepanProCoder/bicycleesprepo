@@ -32,7 +32,7 @@ public class HandshakeActivity extends AppCompatActivity {
 
     private void setupSubmitButton() {
         binding.sendDataButton.setOnClickListener(view -> {
-            handshakeViewModel.postHandshake(new HandshakeData(binding.ssidEditText.getText().toString(), binding.passwordEditText.getText().toString(), binding.idEditText.getText().toString()));
+            handshakeViewModel.postHandshake(new HandshakeData(binding.ssidEditText.getText().toString(), binding.passwordEditText.getText().toString(), binding.idEditText.getText().toString()), this);
             ActivityUtils.startNewActivityAndFinishCurrent(this, LottieActivity.class);
         });
     }

@@ -15,5 +15,17 @@ public class HandshakeData {
         this.password = password;
         this.id = id;
     }
+
+    public String getSsid() {
+        return ssid;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getId() {
+        return id;
+    }
 }
 

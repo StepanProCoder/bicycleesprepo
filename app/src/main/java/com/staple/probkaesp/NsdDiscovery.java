@@ -36,9 +36,9 @@ public class NsdDiscovery {
         mNsdManager.stopServiceDiscovery(mDiscoveryListener);
     }
 
-    public void handleIpAddress(String ipAddress) {
+    public void handleIpAddress(String hostName, String ipAddress) {
         Log.d("IP", ipAddress);
-        mainViewModel.initializeEsp8266Api(ipAddress);
+        mainViewModel.initializeEsp8266Api(hostName, ipAddress);
     }
 
 }

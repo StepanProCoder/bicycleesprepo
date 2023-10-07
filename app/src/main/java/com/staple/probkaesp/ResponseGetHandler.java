@@ -1,5 +1,6 @@
 package com.staple.probkaesp;
 
+import android.content.Context;
 import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
@@ -34,6 +35,7 @@ public class ResponseGetHandler implements Callback<ResponseBody> {
             String jsonString = response.body().string();
             Log.d("JSON", jsonString);
             List<SensorData<?>> sensorDataList = SensorDataFactory.parseSensorDataListFromJson(jsonString);
+
             String result = convertSensorDataListToString(sensorDataList);
             statusTextLiveData.postValue(result);
         } catch (IOException e) {

@@ -38,7 +38,7 @@ public class IpDiscoveryListener implements NsdManager.DiscoveryListener {
     @Override
     public void onServiceFound(NsdServiceInfo serviceInfo) {
         Log.d("NsdDiscovery", "Service found: " + serviceInfo.getServiceName());
-        if(!serviceInfo.getServiceName().equals("SpeedESP"))
+        if(!serviceInfo.getServiceName().contains("SpeedESP"))
             return;
 
         NsdManager.ResolveListener resolveListener = new IpResolveListener(nsdDiscovery);

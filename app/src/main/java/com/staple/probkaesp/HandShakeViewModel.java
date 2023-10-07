@@ -1,5 +1,7 @@
 package com.staple.probkaesp;
 
+import android.content.Context;
+
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -19,8 +21,8 @@ public class HandShakeViewModel extends ViewModel {
         handshakeApi = retrofit.create(HandshakeApi.class);
     }
 
-    public void postHandshake(HandshakeData handshakeData) {
-        handshakeApi.postHandshake(handshakeData).enqueue(new HandshakeHandler(isHandshaked));
+    public void postHandshake(HandshakeData handshakeData, Context context) {
+        handshakeApi.postHandshake(handshakeData).enqueue(new HandshakeHandler(isHandshaked, handshakeData, context));
     }
 
 }

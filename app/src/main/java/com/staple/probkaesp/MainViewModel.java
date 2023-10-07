@@ -1,5 +1,6 @@
 package com.staple.probkaesp;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
@@ -13,6 +14,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -26,24 +31,27 @@ public class MainViewModel extends ViewModel {
 
     // LiveData to observe button click event
     private MutableLiveData<Boolean> buttonClickedLiveData = new MutableLiveData<>();
-    private Esp8266Api esp8266Api;
+    private HashMap<String, Esp8266Api> ipIdMap = new HashMap<>();
     private NsdDiscovery nsdDiscovery;
+    private String curId;
 
     private File jsonFile;
 
     private Timer timer = new Timer();
 
-    public void initializeEsp8266Api(String ipAddress) {
+    public void initializeEsp8266Api(String hostName, String ipAddress) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://" + ipAddress)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        esp8266Api = retrofit.create(Esp8266Api.class);
+        ipIdMap.put(hostName, retrofit.create(Esp8266Api.class));
     }
 
     public void onInit(MainActivity activity) {
         statusGetOrPost.setValue(false);
+
+        curId = SaveLoadResult.loadResult("SystemSensors", "id", activity);
 
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -66,10 +74,13 @@ public class MainViewModel extends ViewModel {
     }
 
     private void updateState() {
-        if (esp8266Api != null) {
-            fetchSwitchStatus();
-        } else {
-            statusTextLiveData.postValue("Ошибка: ESP8266 API не инициализирован");
+        for (Map.Entry<String, Esp8266Api> entry : ipIdMap.entrySet()) {
+            Log.d("ENTRY", entry.getKey());
+            if (entry.getValue() != null) {
+                fetchSwitchStatus(entry);
+            } else {
+                statusTextLiveData.postValue("Ошибка: ESP8266 API не инициализирован");
+            }
         }
     }
 
@@ -87,15 +98,18 @@ public class MainViewModel extends ViewModel {
     }
 
     // Method for executing the API request to fetch switch status
-    private void fetchSwitchStatus() {
+    private void fetchSwitchStatus(Map.Entry<String, Esp8266Api> entry) {
         if(statusGetOrPost.getValue()) {
             Log.d("RETROFIT","GET");
-            esp8266Api.getSensorData().enqueue(new ResponseGetHandler(statusTextLiveData));
+            entry.getValue().getSensorData().enqueue(new ResponseGetHandler(statusTextLiveData));
         }
         else {
-            Log.d("RETROFIT","POST");
-            RequestBody requestBody = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), loadJsonFromCache(jsonFile));
-            esp8266Api.postConfig(requestBody).enqueue(new ResponsePostHandler(statusGetOrPost));
+            Log.d("FETCH",curId);
+            if(entry.getKey().equals("SpeedESP-" + curId)) {
+                Log.d("RETROFIT", "POST");
+                RequestBody requestBody = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), loadJsonFromCache(jsonFile));
+                entry.getValue().postConfig(requestBody).enqueue(new ResponsePostHandler(statusGetOrPost));
+            }
         }
     }
 
