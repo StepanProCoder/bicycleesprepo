@@ -9,15 +9,18 @@ import retrofit2.Response;
 
 public class ResponsePostHandler implements Callback<ResponseBody> {
 
-    MutableLiveData<Boolean> statusGetOrPost;
+    private MutableLiveData<Boolean> statusGetOrPost;
+    private Runnable handshakeLambda;
 
-    public ResponsePostHandler(MutableLiveData<Boolean> statusGetOrPost) {
+    public ResponsePostHandler(MutableLiveData<Boolean> statusGetOrPost, Runnable handshakeLambda) {
         this.statusGetOrPost = statusGetOrPost;
+        this.handshakeLambda = handshakeLambda;
     }
 
     @Override
     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
         statusGetOrPost.setValue(true);
+        handshakeLambda.run();
     }
 
     @Override

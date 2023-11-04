@@ -8,7 +8,7 @@ import java.net.InetAddress;
 
 public class IpDiscoveryListener implements NsdManager.DiscoveryListener {
 
-    private static final String SERVICE_TYPE = "_http._tcp.";
+    private static final String SERVICE_TYPE = "_services._dns-sd._udp"; //"_http._tcp";
     private NsdDiscovery nsdDiscovery;
 
     public IpDiscoveryListener(NsdDiscovery nsdDiscovery) {
@@ -37,15 +37,24 @@ public class IpDiscoveryListener implements NsdManager.DiscoveryListener {
 
     @Override
     public void onServiceFound(NsdServiceInfo serviceInfo) {
-        Log.d("NsdDiscovery", "Service found: " + serviceInfo.getServiceName());
+
         if(!serviceInfo.getServiceName().contains("SpeedESP"))
             return;
 
+        Log.d("NsdDiscovery", "Service found: " + serviceInfo.getServiceName());
+
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         NsdManager.ResolveListener resolveListener = new IpResolveListener(nsdDiscovery);
         // Обработка найденного сервиса
-        if (serviceInfo.getServiceType().equals(SERVICE_TYPE)) {
+        //if (serviceInfo.getServiceType().equals(SERVICE_TYPE)) {
+            Log.d("RESOLVING", "IP RES");
             nsdDiscovery.getNsdManager().resolveService(serviceInfo, resolveListener);
-        }
+        //}
     }
 
     @Override

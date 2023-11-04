@@ -36,8 +36,10 @@ public class MainViewModel extends ViewModel {
     private String curId;
 
     private File jsonFile;
+    private  boolean eraseFlag = false;
 
     private Timer timer = new Timer();
+    private Runnable handshakeLambda;
 
     public void initializeEsp8266Api(String hostName, String ipAddress) {
         Retrofit retrofit = new Retrofit.Builder()
@@ -48,32 +50,38 @@ public class MainViewModel extends ViewModel {
         ipIdMap.put(hostName, retrofit.create(Esp8266Api.class));
     }
 
-    public void onInit(MainActivity activity) {
+    public void onInit(Runnable handshakeLambda, Context context) {
+        this.handshakeLambda = handshakeLambda;
         statusGetOrPost.setValue(false);
 
-        curId = SaveLoadResult.loadResult("SystemSensors", "id", activity);
+        curId = SaveLoadResult.loadResult("SystemSensors", "id", context);
 
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                updateState();
-            }
-        }, 0, 1000);
-
-        jsonFile = new File(activity.getCacheDir(), activity.getString(R.string.json_path));
+        jsonFile = new File(context.getCacheDir(), context.getString(R.string.json_path));
         if (jsonFile.exists()) {
             Log.d("JSONFILE", loadJsonFromCache(jsonFile));
-            nsdDiscovery = new NsdDiscovery(activity, this);
+            nsdDiscovery = new NsdDiscovery(context, this);
             nsdDiscovery.startDiscovery();
+
+            timer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    updateState(context);
+                }
+            }, 0, 1000);
+
         }
         else {
-            ActivityUtils.startNewActivityAndFinishCurrent(activity, HandshakeActivity.class);
-            timer.cancel();
+            handshakeLambda.run();
+            //timer.cancel();
         }
 
     }
 
-    private void updateState() {
+    private void updateState(Context context) {
+
+        nsdDiscovery.stopDiscovery();
+        nsdDiscovery.startDiscovery();
+
         for (Map.Entry<String, Esp8266Api> entry : ipIdMap.entrySet()) {
             Log.d("ENTRY", entry.getKey());
             if (entry.getValue() != null) {
@@ -95,20 +103,24 @@ public class MainViewModel extends ViewModel {
 
     public void onRefreshButtonClick() {
         statusGetOrPost.setValue(false);
+        eraseFlag = true;
     }
 
     // Method for executing the API request to fetch switch status
     private void fetchSwitchStatus(Map.Entry<String, Esp8266Api> entry) {
         if(statusGetOrPost.getValue()) {
             Log.d("RETROFIT","GET");
-            entry.getValue().getSensorData().enqueue(new ResponseGetHandler(statusTextLiveData));
+            entry.getValue().getSensorData().enqueue(new ResponseGetHandler(statusGetOrPost, statusTextLiveData));
         }
         else {
             Log.d("FETCH",curId);
             if(entry.getKey().equals("SpeedESP-" + curId)) {
                 Log.d("RETROFIT", "POST");
-                RequestBody requestBody = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), loadJsonFromCache(jsonFile));
-                entry.getValue().postConfig(requestBody).enqueue(new ResponsePostHandler(statusGetOrPost));
+                RequestBody requestBody = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), eraseFlag? "ERASE": loadJsonFromCache(jsonFile));
+                entry.getValue().
+                        postConfig(requestBody).
+                        enqueue(new ResponsePostHandler(statusGetOrPost, () -> { if(eraseFlag) handshakeLambda.run(); }));
+                eraseFlag = false;
             }
         }
     }

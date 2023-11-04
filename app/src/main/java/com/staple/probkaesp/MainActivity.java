@@ -48,6 +48,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mainViewModel.onInit(this);
+        mainViewModel.onInit(() -> { ActivityUtils.startNewActivityAndFinishCurrent(this, HandshakeActivity.class); }, this);
     }
 }
