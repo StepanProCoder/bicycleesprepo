@@ -27,10 +27,12 @@ public class HandshakeHandler implements Callback<ResponseBody> {
     @Override
     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
         isHandshaked.setValue(true);
-        Log.d("ID", handshakeData.getId());
-        SaveLoadResult.saveResult("SystemSensors", "id", handshakeData.getId(), context);
+        //Log.d("ID", handshakeData.getId());
+        //SaveLoadResult.saveResult("SystemSensors", "id", handshakeData.getId(), context);
         try {
-            Log.d("HANDSHAKE", response.body().string());
+            //Log.d("HANDSHAKE", response.body().string());
+            SaveLoadResult.saveResult("SystemSensors", "uuid", response.body().string(), context);
+            Log.d("SAVEDUUID", SaveLoadResult.loadResult("SystemSensors", "uuid", context));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

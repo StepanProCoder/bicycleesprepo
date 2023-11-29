@@ -33,7 +33,7 @@ public class MainViewModel extends ViewModel {
     private MutableLiveData<Boolean> buttonClickedLiveData = new MutableLiveData<>();
     private HashMap<String, Esp8266Api> ipIdMap = new HashMap<>();
     private NsdDiscovery nsdDiscovery;
-    private String curId;
+    private String curUUId;
 
     private File jsonFile;
     private  boolean eraseFlag = false;
@@ -54,7 +54,7 @@ public class MainViewModel extends ViewModel {
         this.handshakeLambda = handshakeLambda;
         statusGetOrPost.setValue(false);
 
-        curId = SaveLoadResult.loadResult("SystemSensors", "id", context);
+        curUUId = SaveLoadResult.loadResult("SystemSensors", "uuid", context);
 
         jsonFile = new File(context.getCacheDir(), context.getString(R.string.json_path));
         if (jsonFile.exists()) {
@@ -113,8 +113,8 @@ public class MainViewModel extends ViewModel {
             entry.getValue().getSensorData().enqueue(new ResponseGetHandler(statusGetOrPost, statusTextLiveData));
         }
         else {
-            Log.d("FETCH",curId);
-            if(entry.getKey().equals("SpeedESP-" + curId)) {
+            Log.d("FETCH",curUUId);
+            if(entry.getKey().equals(curUUId)) {
                 Log.d("RETROFIT", "POST");
                 RequestBody requestBody = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), eraseFlag? "ERASE": loadJsonFromCache(jsonFile));
                 entry.getValue().

@@ -11,7 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class NsdDiscovery {
 
-    private static final String SERVICE_TYPE = "_http._tcp.";
+    public static final String SERVICE_TYPE = "_speedesp._tcp.";
     private Context mContext;
     private NsdManager mNsdManager;
     private MainViewModel mainViewModel;
