@@ -67,7 +67,7 @@ public class MainViewModel extends ViewModel {
                 public void run() {
                     updateState(context);
                 }
-            }, 0, 1000);
+            }, 0, 3000);
 
         }
         else {
@@ -119,7 +119,7 @@ public class MainViewModel extends ViewModel {
                 RequestBody requestBody = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), eraseFlag? "ERASE": loadJsonFromCache(jsonFile));
                 entry.getValue().
                         postConfig(requestBody).
-                        enqueue(new ResponsePostHandler(statusGetOrPost, () -> { if(eraseFlag) handshakeLambda.run(); }));
+                        enqueue(new ResponsePostHandler(statusGetOrPost, handshakeLambda));
                 eraseFlag = false;
             }
         }

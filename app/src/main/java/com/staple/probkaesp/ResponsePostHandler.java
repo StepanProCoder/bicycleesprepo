@@ -1,6 +1,10 @@
 package com.staple.probkaesp;
 
+import android.util.Log;
+
 import androidx.lifecycle.MutableLiveData;
+
+import java.io.IOException;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -19,8 +23,17 @@ public class ResponsePostHandler implements Callback<ResponseBody> {
 
     @Override
     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-        statusGetOrPost.setValue(true);
-        handshakeLambda.run();
+        try {
+            if(response.body().string().equals("RESETTING")) {
+                Log.d("HSHK", "handshaking again");
+                handshakeLambda.run();
+            }
+            else {
+                statusGetOrPost.setValue(true);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
