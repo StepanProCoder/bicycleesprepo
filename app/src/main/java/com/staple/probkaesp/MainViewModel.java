@@ -1,5 +1,6 @@
 package com.staple.probkaesp;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
@@ -13,6 +14,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -26,50 +31,64 @@ public class MainViewModel extends ViewModel {
 
     // LiveData to observe button click event
     private MutableLiveData<Boolean> buttonClickedLiveData = new MutableLiveData<>();
-    private Esp8266Api esp8266Api;
+    private HashMap<String, Esp8266Api> ipIdMap = new HashMap<>();
     private NsdDiscovery nsdDiscovery;
+    private String curUUId;
 
     private File jsonFile;
+    private  boolean eraseFlag = false;
 
     private Timer timer = new Timer();
+    private Runnable handshakeLambda;
 
-    public void initializeEsp8266Api(String ipAddress) {
+    public void initializeEsp8266Api(String hostName, String ipAddress) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://" + ipAddress)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        esp8266Api = retrofit.create(Esp8266Api.class);
+        ipIdMap.put(hostName, retrofit.create(Esp8266Api.class));
     }
 
-    public void onInit(MainActivity activity) {
+    public void onInit(Runnable handshakeLambda, Context context) {
+        this.handshakeLambda = handshakeLambda;
         statusGetOrPost.setValue(false);
 
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                updateState();
-            }
-        }, 0, 1000);
+        curUUId = SaveLoadResult.loadResult("SystemSensors", "uuid", context);
 
-        jsonFile = new File(activity.getCacheDir(), activity.getString(R.string.json_path));
+        jsonFile = new File(context.getCacheDir(), context.getString(R.string.json_path));
         if (jsonFile.exists()) {
             Log.d("JSONFILE", loadJsonFromCache(jsonFile));
-            nsdDiscovery = new NsdDiscovery(activity, this);
+            nsdDiscovery = new NsdDiscovery(context, this);
             nsdDiscovery.startDiscovery();
+
+            timer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    updateState(context);
+                }
+            }, 0, 3000);
+
         }
         else {
-            ActivityUtils.startNewActivityAndFinishCurrent(activity, LottieActivity.class);
-            timer.cancel();
+            handshakeLambda.run();
+            //timer.cancel();
         }
 
     }
 
-    private void updateState() {
-        if (esp8266Api != null) {
-            fetchSwitchStatus();
-        } else {
-            statusTextLiveData.postValue("Ошибка: ESP8266 API не инициализирован");
+    private void updateState(Context context) {
+
+        nsdDiscovery.stopDiscovery();
+        nsdDiscovery.startDiscovery();
+
+        for (Map.Entry<String, Esp8266Api> entry : ipIdMap.entrySet()) {
+            Log.d("ENTRY", entry.getKey());
+            if (entry.getValue() != null) {
+                fetchSwitchStatus(entry);
+            } else {
+                statusTextLiveData.postValue("Ошибка: ESP8266 API не инициализирован");
+            }
         }
     }
 
@@ -84,18 +103,25 @@ public class MainViewModel extends ViewModel {
 
     public void onRefreshButtonClick() {
         statusGetOrPost.setValue(false);
+        eraseFlag = true;
     }
 
     // Method for executing the API request to fetch switch status
-    private void fetchSwitchStatus() {
+    private void fetchSwitchStatus(Map.Entry<String, Esp8266Api> entry) {
         if(statusGetOrPost.getValue()) {
             Log.d("RETROFIT","GET");
-            esp8266Api.getSensorData().enqueue(new ResponseGetHandler(statusTextLiveData));
+            entry.getValue().getSensorData().enqueue(new ResponseGetHandler(statusGetOrPost, statusTextLiveData));
         }
         else {
-            Log.d("RETROFIT","POST");
-            RequestBody requestBody = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), loadJsonFromCache(jsonFile));
-            esp8266Api.postConfig(requestBody).enqueue(new ResponsePostHandler(statusGetOrPost));
+            Log.d("FETCH",curUUId);
+            if(entry.getKey().equals(curUUId)) {
+                Log.d("RETROFIT", "POST");
+                RequestBody requestBody = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), eraseFlag? "ERASE": loadJsonFromCache(jsonFile));
+                entry.getValue().
+                        postConfig(requestBody).
+                        enqueue(new ResponsePostHandler(statusGetOrPost, handshakeLambda));
+                eraseFlag = false;
+            }
         }
     }
 

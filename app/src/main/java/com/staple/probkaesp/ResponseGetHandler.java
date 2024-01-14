@@ -1,5 +1,6 @@
 package com.staple.probkaesp;
 
+import android.content.Context;
 import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
@@ -15,8 +16,10 @@ import retrofit2.Response;
 public class ResponseGetHandler implements Callback<ResponseBody> {
 
     MutableLiveData<String> statusTextLiveData;
+    MutableLiveData<Boolean> statusGetOrPost;
 
-    public ResponseGetHandler(MutableLiveData<String> statusTextLiveData) {
+    public ResponseGetHandler(MutableLiveData<Boolean> statusGetOrPost, MutableLiveData<String> statusTextLiveData) {
+        this.statusGetOrPost = statusGetOrPost;
         this.statusTextLiveData = statusTextLiveData;
     }
 
@@ -34,6 +37,7 @@ public class ResponseGetHandler implements Callback<ResponseBody> {
             String jsonString = response.body().string();
             Log.d("JSON", jsonString);
             List<SensorData<?>> sensorDataList = SensorDataFactory.parseSensorDataListFromJson(jsonString);
+
             String result = convertSensorDataListToString(sensorDataList);
             statusTextLiveData.postValue(result);
         } catch (IOException e) {
@@ -45,6 +49,7 @@ public class ResponseGetHandler implements Callback<ResponseBody> {
     @Override
     public void onFailure(Call<ResponseBody> call, Throwable t) {
         statusTextLiveData.setValue("Ошибка при отправке запроса");
+        statusGetOrPost.setValue(false);
     }
 
     public static String convertSensorDataListToString(List<SensorData<?>> sensorDataList) {

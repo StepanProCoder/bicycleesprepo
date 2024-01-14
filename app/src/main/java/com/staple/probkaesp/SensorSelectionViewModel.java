@@ -36,11 +36,5 @@ public class SensorSelectionViewModel extends ViewModel {
             e.printStackTrace();
         }
     }
-    public void navigateToNextScreen(SensorSelectionActivity activity) {
-        // Завершаем активность и переходим на активность MainActivity
-        Intent bluetoothIntent = new Intent(activity, MainActivity.class);
-        activity.startActivity(bluetoothIntent);
-        activity.finish();
-    }
 
 }

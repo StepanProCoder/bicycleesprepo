@@ -7,8 +7,6 @@ import android.util.Log;
 import java.net.InetAddress;
 
 public class IpDiscoveryListener implements NsdManager.DiscoveryListener {
-
-    private static final String SERVICE_TYPE = "_http._tcp.";
     private NsdDiscovery nsdDiscovery;
 
     public IpDiscoveryListener(NsdDiscovery nsdDiscovery) {
@@ -37,13 +35,22 @@ public class IpDiscoveryListener implements NsdManager.DiscoveryListener {
 
     @Override
     public void onServiceFound(NsdServiceInfo serviceInfo) {
+
+//        if(!serviceInfo.getServiceName().contains("SpeedESP"))
+//            return;
+
         Log.d("NsdDiscovery", "Service found: " + serviceInfo.getServiceName());
-        if(!serviceInfo.getServiceName().equals("SpeedESP"))
-            return;
+
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         NsdManager.ResolveListener resolveListener = new IpResolveListener(nsdDiscovery);
         // Обработка найденного сервиса
-        if (serviceInfo.getServiceType().equals(SERVICE_TYPE)) {
+        if (serviceInfo.getServiceType().equals(NsdDiscovery.SERVICE_TYPE)) {
+            Log.d("RESOLVING", "IP RES");
             nsdDiscovery.getNsdManager().resolveService(serviceInfo, resolveListener);
         }
     }

@@ -49,7 +49,7 @@ public class SensorSelectionActivity extends AppCompatActivity {
                     getIntent().getIntExtra("selectedRadius", 20)
             );
 
-            sensorSelectionViewModel.navigateToNextScreen(this);
+            ActivityUtils.startNewActivityAndFinishCurrent(this, MainActivity.class);
         });
     }
 
