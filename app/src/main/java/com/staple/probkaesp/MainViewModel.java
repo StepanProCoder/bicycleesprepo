@@ -40,6 +40,7 @@ public class MainViewModel extends ViewModel {
 
     private Timer timer = new Timer();
     private Runnable handshakeLambda;
+    private DBHandler dbHandler;
 
     public void initializeEsp8266Api(String hostName, String ipAddress) {
         Retrofit retrofit = new Retrofit.Builder()
@@ -59,6 +60,10 @@ public class MainViewModel extends ViewModel {
         jsonFile = new File(context.getCacheDir(), context.getString(R.string.json_path));
         if (jsonFile.exists()) {
             Log.d("JSONFILE", loadJsonFromCache(jsonFile));
+
+            dbHandler = new DBHandler(context);
+            dbHandler.updateDB();
+
             nsdDiscovery = new NsdDiscovery(context, this);
             nsdDiscovery.startDiscovery();
 
@@ -106,11 +111,16 @@ public class MainViewModel extends ViewModel {
         eraseFlag = true;
     }
 
+    public Boolean deleteFile()
+    {
+        return jsonFile.delete();
+    }
+
     // Method for executing the API request to fetch switch status
     private void fetchSwitchStatus(Map.Entry<String, Esp8266Api> entry) {
         if(statusGetOrPost.getValue()) {
             Log.d("RETROFIT","GET");
-            entry.getValue().getSensorData().enqueue(new ResponseGetHandler(statusGetOrPost, statusTextLiveData));
+            entry.getValue().getSensorData().enqueue(new ResponseGetHandler(statusGetOrPost, dbHandler, statusTextLiveData));
         }
         else {
             Log.d("FETCH",curUUId);
