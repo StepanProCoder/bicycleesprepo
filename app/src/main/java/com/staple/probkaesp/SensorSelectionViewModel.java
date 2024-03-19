@@ -1,10 +1,9 @@
 package com.staple.probkaesp;
 
-import android.content.Intent;
-
 import androidx.lifecycle.ViewModel;
 
 import com.google.gson.Gson;
+import com.staple.probkaesp.datamodels.BikeData;
 
 import java.io.File;
 import java.io.FileOutputStream;
