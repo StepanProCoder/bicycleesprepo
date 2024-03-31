@@ -33,6 +33,7 @@ public class FetcherInteractor
 {
     private HashMap<String, Esp8266Api> ipIdMap = new HashMap<>();
     private NsdDiscovery nsdDiscovery;
+    private MapInteractor mapInteractor = new MapInteractor();
     private String curUUId;
     private File jsonFile;
     private Boolean eraseFlag = false;
@@ -132,7 +133,7 @@ public class FetcherInteractor
         if(mode.getValue())
         {
             Log.d("RETROFIT","GET");
-            entry.getValue().getSensorData().enqueue(new ResponseGetHandler(mode, dbHandler));
+            entry.getValue().getSensorData(mapInteractor.currentGeoPoint.getLatitude(), mapInteractor.currentGeoPoint.getLongitude()).enqueue(new ResponseGetHandler(entry.getKey(), mode, dbHandler));
         }
         else
         {

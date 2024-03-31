@@ -8,6 +8,9 @@ public class SensorDataEntity {
     @PrimaryKey(autoGenerate = true)
     public int id;
 
+    @ColumnInfo(name = "uuid")
+    public String uuid;
+
     @ColumnInfo(name = "sensor_type")
     public String sensorType;
 

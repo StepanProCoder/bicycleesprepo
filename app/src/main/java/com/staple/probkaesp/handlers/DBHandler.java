@@ -17,8 +17,9 @@ public class DBHandler {
         sensorDataDao = sensorDatabase.sensorDataDao();
     }
 
-    public void addNewSensorData(String sensorType, String sensorData, String curTime) {
+    public void addNewSensorData(String uuid, String sensorType, String sensorData, String curTime) {
         SensorDataEntity sensorDataEntity = new SensorDataEntity();
+        sensorDataEntity.uuid = uuid;
         sensorDataEntity.sensorType = sensorType;
         sensorDataEntity.sensorData = sensorData;
         sensorDataEntity.timestamp = curTime;
@@ -34,7 +35,8 @@ public class DBHandler {
         List<SensorDataEntity> sensorDataEntities = sensorDataDao.getAllSensorData();
         StringBuilder result = new StringBuilder();
         for (SensorDataEntity entity : sensorDataEntities) {
-            result.append("Sensor Type: ").append(entity.sensorType)
+            result.append("UUID: ").append(entity.uuid)
+                    .append(", Sensor Type: ").append(entity.sensorType)
                     .append(", Sensor Data: ").append(entity.sensorData)
                     .append(", Timestamp: ").append(entity.timestamp).append("\n");
         }

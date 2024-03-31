@@ -6,6 +6,8 @@ import com.google.gson.reflect.TypeToken;
 import com.staple.probkaesp.datamodels.SensorData;
 import com.staple.probkaesp.datamodels.SensorDataDeserializer;
 
+import org.osmdroid.util.GeoPoint;
+
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +20,7 @@ public class SensorDataFactory {
     static {
         typeMappings.put("id", String.class);
         typeMappings.put("Gerkon", Float.class);
+        typeMappings.put("geo", GeoPoint.class);
         // Добавьте другие типы датчиков, если необходимо
     }
 

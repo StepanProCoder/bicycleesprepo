@@ -2,6 +2,8 @@ package com.staple.probkaesp.datamodels;
 
 import com.google.gson.*;
 
+import org.osmdroid.util.GeoPoint;
+
 import java.lang.reflect.Type;
 
 public class SensorDataDeserializer implements JsonDeserializer<SensorData<?>> {
@@ -17,7 +19,15 @@ public class SensorDataDeserializer implements JsonDeserializer<SensorData<?>> {
         }
 
         JsonElement jsonData = jsonObject.get("data");
-        Object data = context.deserialize(jsonData, dataType);
+        Object data;
+        if (sensorType.equals("geo")) {
+            double latitude = Double.valueOf(jsonData.getAsString().split(",")[0]);
+            double longitude = Double.valueOf(jsonData.getAsString().split(",")[1]);
+            data = new GeoPoint(latitude, longitude);
+        }
+        else {
+            data = context.deserialize(jsonData, dataType);
+        }
 
         return new SensorData<>(sensorType, data);
     }

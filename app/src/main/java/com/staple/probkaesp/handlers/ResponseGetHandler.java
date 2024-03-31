@@ -20,11 +20,13 @@ import retrofit2.Response;
 
 public class ResponseGetHandler implements Callback<ResponseBody>
 {
+    private String uuid;
     private MutableLiveData<Boolean> isGetOrPost;
     private DBHandler dbHandler;
 
-    public ResponseGetHandler(MutableLiveData<Boolean> isGetOrPost, DBHandler dbHandler)
+    public ResponseGetHandler(String uuid, MutableLiveData<Boolean> isGetOrPost, DBHandler dbHandler)
     {
+        this.uuid = uuid;
         this.isGetOrPost = isGetOrPost;
         this.dbHandler = dbHandler;
     }
@@ -42,11 +44,12 @@ public class ResponseGetHandler implements Callback<ResponseBody>
 
             for (int i = 0; i < sensorDataList.size(); i++)
             {
-                dbHandler.addNewSensorData(sensorDataList.get(i).getSensorType(), sensorDataList.get(i).getData().toString(), currentTime);
+                dbHandler.addNewSensorData(uuid, sensorDataList.get(i).getSensorType(), sensorDataList.get(i).getData().toString(), currentTime);
             }
 
             //String result = convertSensorDataListToString(sensorDataList);
-            //String result = dbHandler.getAllSensorData();
+            String result = dbHandler.getAllSensorData();
+            Log.d("DB", result);
             //statusTextLiveData.postValue(result);
         }
         catch (IOException e)
